@@ -3,21 +3,12 @@ package com.ny4rlk0.zikirmatik
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.ny4rlk0.zikirmatik.ui.theme.ZikirmatikTheme
-import android.widget.Button
-import android.widget.TextView
 import android.os.Vibrator
 import android.content.Context
-import android.media.MediaPlayer
 import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,21 +17,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
@@ -49,24 +33,40 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 
 import android.os.VibrationEffect
 import android.os.VibratorManager
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
-
-// imports
 import android.media.ToneGenerator
 import android.media.AudioManager
+import android.content.pm.ActivityInfo
+import android.view.WindowManager
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.text.PlatformTextStyle
+import kotlinx.coroutines.handleCoroutineException
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.unit.dp
 class MainActivity : ComponentActivity() {
     private val PREFS_NAME = "zikirmatik_prefs"
     private val COUNTER_KEY = "counter_value"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        try {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+        catch (_: Exception) {
+
+        }
 
         val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val savedCounter = prefs.getInt(COUNTER_KEY, 0)
@@ -168,7 +168,8 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )
-
+                        val buttonHeight = 64.dp
+                        val iconSize =  (buttonHeight * 0.75f)
                         Button(
                             onClick = {
                                 counter = 0
@@ -179,20 +180,23 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .padding(top = 16.dp)
                                 .fillMaxWidth(0.25f)
-                                .height(64.dp),
+                                .height(buttonHeight),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Red,
                                 contentColor = Color.White
-                            )
-                        ) {
-                            Text(
-                                text = "⟳",
-                                fontSize = 32.sp,            // daha büyük gösterir
-                                fontWeight = FontWeight.Bold,// daha belirgin yapar
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
+                            ), contentPadding = PaddingValues(0.dp)
+                        ){
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = "Reset",
+                                    modifier = Modifier.size(iconSize),
+                                    tint = Color.White
+                                )
+                            }
                         }
                         Spacer(modifier = Modifier.weight(1f))
+                        val screenHeight = LocalConfiguration.current.screenHeightDp.dp
                         Button(
                             onClick = {
                                 counter ++
@@ -226,7 +230,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 8.dp, vertical = 8.dp)
-                                .aspectRatio(1f),
+                                .height(screenHeight * 0.50f),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFFFF9800),
                                 contentColor = Color.White
@@ -240,4 +244,18 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+    override fun onDestroy() {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        super.onDestroy()
+    }
+    override fun onResume() {
+        super.onResume()
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    override fun onPause() {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        super.onPause()
+    }
+
 }
