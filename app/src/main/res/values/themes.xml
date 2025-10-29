@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<style name="Theme.Zikirmatik" parent="Theme.AppCompat.Light.NoActionBar">
+    <item name="colorPrimary">@color/black</item>
+    <item name="colorPrimaryDark">@color/black</item>
+    <item name="colorAccent">@color/teal_200</item>
+</style>
+    <style name="Theme.App.Launch" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Launch theme sadece windowBackground ayarı içermeli -->
+        <item name="android:windowBackground">@color/splash_background</item>
+        <item name="android:windowIsTranslucent">false</item>
+    </style>
+</resources>
